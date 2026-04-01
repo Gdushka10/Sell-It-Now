@@ -12,6 +12,9 @@ import { HomePage } from '@/pages/home'
 import { AppPage } from '@/pages/app'
 import { HistoryPage } from '@/pages/history'
 import { AdminPage } from '@/pages/admin'
+import { PrivacyPage } from '@/pages/privacy'
+import { TermsPage } from '@/pages/terms'
+import { ContactPage } from '@/pages/contact'
 import '@/index.css'
 import { Toaster } from 'sonner'
 
@@ -42,6 +45,21 @@ const router = createBrowserRouter([
   {
     path: "/app/admin",
     element: <AdminPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/privacy",
+    element: <PrivacyPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/terms",
+    element: <TermsPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/contact",
+    element: <ContactPage />,
     errorElement: <RouteErrorBoundary />,
   }
 ]);

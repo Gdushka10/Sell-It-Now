@@ -448,9 +448,9 @@ export function HomePage() {
               <span className="text-xl font-bold tracking-tight">Sell It Now</span>
             </div>
             <div className="flex gap-8 text-sm font-medium text-muted-foreground">
-              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms</a>
-              <a href="#" className="hover:text-primary transition-colors">Contact</a>
+              <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
+              <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
             </div>
             <p className="text-sm text-muted-foreground">
               © 2026 Sell It Now. All rights reserved.
