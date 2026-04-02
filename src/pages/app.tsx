@@ -331,7 +331,6 @@ export function AppPage() {
   const [analyzingMessage, setAnalyzingMessage] = useState("Checking market prices...")
   const [selectedMarketplaces, setSelectedMarketplaces] = useState<string[]>(["fb", "offerup", "mercari"])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [currentStorageId, setCurrentStorageId] = useState<string | null>(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   const checkAccess = useAction(api.pay.check)
@@ -339,10 +338,13 @@ export function AppPage() {
 
   const generateUploadUrl = useMutation(api.listings.generateUploadUrl)
   const analyzeImage = useAction(api.analyze.analyzeImage)
-  const saveListing = useMutation(api.listings.saveListing)
+  const saveAnalysis = useMutation(api.listings.saveAnalysis)
+  const updateListingPosted = useMutation(api.listings.updateListingPosted)
   const recordUsage = useMutation(api.listings.recordUsage)
   const usageCount = useQuery(api.listings.getUsageCount)
   const isAdmin = useQuery(api.admin.isAdmin)
+
+  const [currentListingId, setCurrentListingId] = useState<string | null>(null)
 
   const nextStep = () => setStep((s) => (s + 1) as Step)
 
@@ -382,7 +384,6 @@ export function AppPage() {
       if (!response.ok) throw new Error("Upload failed")
 
       const { storageId } = await response.json()
-      setCurrentStorageId(storageId)
       const data = await analyzeImage({ storageId })
       
       setItemDetails(data as ItemDetails)
@@ -393,6 +394,21 @@ export function AppPage() {
       } catch {
         // Don't block the flow if recording fails
       }
+
+      // Save the analysis to the database
+      try {
+        const listingId = await saveAnalysis({
+          storageId: storageId,
+          title: (data as any).title,
+          description: (data as any).description,
+          priceLow: (data as any).priceRange.low,
+          priceHigh: (data as any).priceRange.high,
+          priceSuggested: (data as any).priceRange.suggested,
+          condition: (data as any).condition,
+          category: (data as any).category,
+        })
+        setCurrentListingId(listingId)
+      } catch {}
 
       setStep(3)
     } catch (error) {
@@ -455,14 +471,14 @@ export function AppPage() {
   }, [step])
 
   const handlePost = async () => {
-    if (!currentStorageId) {
-      toast.error("Something went wrong. Please try uploading again.")
+    if (!currentListingId) {
+      toast.error("Something went wrong. Please try again.")
       return
     }
 
     try {
-      await saveListing({
-        storageId: currentStorageId as any,
+      await updateListingPosted({
+        listingId: currentListingId as any,
         title: itemDetails.title,
         description: itemDetails.description,
         priceLow: itemDetails.priceRange.low,
@@ -472,11 +488,10 @@ export function AppPage() {
         category: itemDetails.category,
         postedTo: selectedMarketplaces,
       })
-
       toast.success("Item listed successfully!")
       setStep(5)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to save listing")
+      toast.error(error instanceof Error ? error.message : "Failed to list item")
     }
   }
 
@@ -489,7 +504,7 @@ export function AppPage() {
     if (image) URL.revokeObjectURL(image)
     setStep(1)
     setImage(null)
-    setCurrentStorageId(null)
+    setCurrentListingId(null)
     setItemDetails(MOCK_DATA)
   }
 
@@ -541,7 +556,7 @@ export function AppPage() {
                     <DropdownMenuItem asChild className="rounded-xl font-medium cursor-pointer">
                       <Link to="/app/history">
                         <History className="w-4 h-4 mr-2" />
-                        My Listings
+                        My Analyses
                       </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
@@ -579,10 +594,11 @@ export function AppPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-none shadow-xl">
                 <DropdownMenuItem asChild className="rounded-xl font-medium cursor-pointer">
-                  <Link to="/app/history">
-                    <History className="w-4 h-4 mr-2" />
-                    My Listings
-                  </Link>
+                    <Link to="/app/history">
+                      <History className="w-4 h-4 mr-2" />
+                      My Analyses
+                    </Link>
+
                 </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem asChild className="rounded-xl font-medium cursor-pointer">
@@ -936,7 +952,7 @@ export function AppPage() {
                 </Button>
                 <Button variant="outline" className="h-14 px-8 rounded-2xl font-bold" asChild>
                   <Link to="/app/history">
-                    View My Listings
+                    View My Analyses
                     <ExternalLink className="w-4 h-4 ml-2" />
                   </Link>
                 </Button>

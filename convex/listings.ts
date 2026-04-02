@@ -79,6 +79,65 @@ export const recordUsage = mutation({
   },
 });
 
+export const saveAnalysis = mutation({
+  args: {
+    storageId: v.id("_storage"),
+    title: v.string(),
+    description: v.string(),
+    priceLow: v.number(),
+    priceHigh: v.number(),
+    priceSuggested: v.number(),
+    condition: v.string(),
+    category: v.string(),
+  },
+  returns: v.id("listings"),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    return await ctx.db.insert("listings", {
+      ...args,
+      userId,
+      postedTo: undefined,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const updateListingPosted = mutation({
+  args: {
+    listingId: v.id("listings"),
+    title: v.string(),
+    description: v.string(),
+    priceLow: v.number(),
+    priceHigh: v.number(),
+    priceSuggested: v.number(),
+    condition: v.string(),
+    category: v.string(),
+    postedTo: v.array(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const listing = await ctx.db.get(args.listingId);
+    if (!listing || listing.userId !== userId)
+      throw new Error("Listing not found");
+
+    await ctx.db.patch(args.listingId, {
+      title: args.title,
+      description: args.description,
+      priceLow: args.priceLow,
+      priceHigh: args.priceHigh,
+      priceSuggested: args.priceSuggested,
+      condition: args.condition,
+      category: args.category,
+      postedTo: args.postedTo,
+    });
+    return null;
+  },
+});
+
 export const getMyListings = query({
   args: {},
   returns: v.array(

@@ -40,6 +40,14 @@ const MARKETPLACE_ICONS: Record<string, any> = {
   poshmark: Store,
 }
 
+const MARKETPLACE_NAMES: Record<string, string> = {
+  fb: "Facebook",
+  craigslist: "Craigslist",
+  offerup: "OfferUp",
+  mercari: "Mercari",
+  poshmark: "Poshmark",
+}
+
 const CATEGORY_STYLES: Record<string, { gradient: string; icon: any }> = {
   Electronics: { 
     gradient: "from-blue-400 to-blue-600", 
@@ -118,7 +126,7 @@ export function HistoryPage() {
       <header className="sticky top-0 z-30 bg-[#FAFAFA]/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="text-xl font-bold tracking-tight hidden sm:block">Sell It Now</h1>
+            <h1 className="text-xl font-bold tracking-tight hidden sm:block">Analysis History</h1>
             <Button variant="ghost" size="sm" asChild className="rounded-full font-medium text-muted-foreground hover:text-primary">
               <Link to="/app">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -162,7 +170,7 @@ export function HistoryPage() {
                   <LayoutGrid className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Listings</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Analyses</p>
                   <p className="text-2xl font-bold">{listings?.length || 0}</p>
                 </div>
               </CardContent>
@@ -222,7 +230,7 @@ export function HistoryPage() {
             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <HistoryIcon className="w-10 h-10 text-gray-300" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">No listings yet</h2>
+            <h2 className="text-2xl font-bold mb-2">No analyses yet</h2>
             <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
               Upload your first item to get started and see it here in your history.
             </p>
@@ -272,9 +280,20 @@ export function HistoryPage() {
 
                     <CardContent className="p-6 flex-1 flex flex-col">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                          {getRelativeTime(listing.createdAt)}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                            {getRelativeTime(listing.createdAt)}
+                          </span>
+                          {listing.postedTo && listing.postedTo.length > 0 ? (
+                            <Badge variant="secondary" className="rounded-full bg-green-50 text-green-700 border-green-100 font-semibold text-[8px] h-4 px-1.5 w-fit">
+                              Posted to {listing.postedTo.map(id => MARKETPLACE_NAMES[id] || id).join(", ")}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="rounded-full bg-gray-50 text-gray-400 border-gray-100 font-semibold text-[8px] h-4 px-1.5 w-fit">
+                              Not Posted
+                            </Badge>
+                          )}
+                        </div>
                         <Badge variant="secondary" className="rounded-full bg-gray-50 text-gray-600 border-gray-100 font-semibold text-[10px]">
                           {listing.condition}
                         </Badge>
