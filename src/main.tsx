@@ -18,7 +18,7 @@ import { ContactPage } from '@/pages/contact'
 import '@/index.css'
 import { Toaster } from 'sonner'
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL || "https://agile-bobcat-932.convex.cloud");
 
 // Handle module load failures (e.g., after deployment with stale chunks)
 window.addEventListener('vite:preloadError', (event) => {
