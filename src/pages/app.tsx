@@ -93,6 +93,13 @@ function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    
+    // Safety timeout - reset loading state after 10 seconds
+    // signIn may not resolve its promise in all cases
+    const timeout = setTimeout(() => {
+      setIsSubmitting(false)
+    }, 10000)
+    
     try {
       await signIn("password", {
         email,
@@ -100,18 +107,21 @@ function AuthPage() {
         flow,
         ...(flow === "signUp" ? { name } : {}),
       })
-      toast.success(flow === "signIn" ? "Welcome back!" : "Account created!")
+      // If we get here, auth succeeded - the component will unmount
+      // as isAuthenticated becomes true
     } catch (error) {
+      clearTimeout(timeout)
+      setIsSubmitting(false)
       const message = String(error)
       if (message.includes("InvalidAccountId") || message.includes("InvalidSecret")) {
         toast.error("Invalid email or password")
       } else if (message.includes("TooManyFailedAttempts")) {
         toast.error("Too many attempts, try again later")
+      } else if (message.includes("Could not verify")) {
+        toast.error("Invalid email or password")
       } else {
-        toast.error("Authentication failed")
+        toast.error("Authentication failed. Please try again.")
       }
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -174,8 +184,12 @@ function AuthPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={8}
                   className="rounded-xl h-12 border-gray-100 bg-gray-50/50 focus:bg-white transition-colors"
                 />
+                {flow === "signUp" && (
+                  <p className="text-xs text-muted-foreground ml-1">Must be at least 8 characters</p>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4 pt-2">
