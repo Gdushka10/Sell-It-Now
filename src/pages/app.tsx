@@ -231,7 +231,7 @@ function UpgradeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
             <Badge className="bg-white/20 hover:bg-white/20 text-white border-none mb-4 px-3 py-1 rounded-full font-bold uppercase tracking-wider text-[10px]">
               Pro Plan
             </Badge>
-            <h2 className="text-3xl font-bold mb-2">You've used all 3 free listings!</h2>
+            <h2 className="text-3xl font-bold mb-2">You've used all 3 free analyses!</h2>
             <p className="text-primary-foreground/90 font-medium">
               Upgrade to Pro for unlimited AI-powered listings and more features.
             </p>
@@ -256,7 +256,7 @@ function UpgradeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
           
           <div className="flex flex-col gap-3">
             <div className="flex items-baseline justify-center gap-1 mb-2">
-              <span className="text-3xl font-bold">$9.99</span>
+              <span className="text-3xl font-bold">$9.99 USD</span>
               <span className="text-muted-foreground font-medium">/month</span>
             </div>
             <Button 
@@ -340,6 +340,7 @@ export function AppPage() {
   const generateUploadUrl = useMutation(api.listings.generateUploadUrl)
   const analyzeImage = useAction(api.analyze.analyzeImage)
   const saveListing = useMutation(api.listings.saveListing)
+  const recordUsage = useMutation(api.listings.recordUsage)
   const usageCount = useQuery(api.listings.getUsageCount)
   const isAdmin = useQuery(api.admin.isAdmin)
 
@@ -385,6 +386,14 @@ export function AppPage() {
       const data = await analyzeImage({ storageId })
       
       setItemDetails(data as ItemDetails)
+      
+      // Record this as a free usage (counts toward the 3 free limit)
+      try {
+        await recordUsage({ type: "ai_analysis" })
+      } catch {
+        // Don't block the flow if recording fails
+      }
+
       setStep(3)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Analysis failed")
@@ -472,7 +481,7 @@ export function AppPage() {
   }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${itemDetails.title}\n\n${itemDetails.description}\n\nPrice: $${itemDetails.priceRange.suggested}`)
+    navigator.clipboard.writeText(`${itemDetails.title}\n\n${itemDetails.description}\n\nPrice: $${itemDetails.priceRange.suggested} USD`)
     toast.success("Copied to clipboard")
   }
 
@@ -514,7 +523,7 @@ export function AppPage() {
                 ) : (
                   <Badge variant="secondary" className="rounded-full bg-primary/5 text-primary border-primary/10 px-3 py-1 flex items-center gap-1.5 font-semibold">
                     <Zap className="w-3 h-3 fill-current" />
-                    {Math.max(0, 3 - (usageCount ?? 0))} free listings left
+                    {Math.max(0, 3 - (usageCount ?? 0))} free analyses left
                   </Badge>
                 )}
               </div>
@@ -719,21 +728,21 @@ export function AppPage() {
                         </Badge>
                       </div>
                       <div className="flex items-baseline gap-2 mb-4">
-                        <span className="text-4xl font-bold">${itemDetails.priceRange.suggested}</span>
+                        <span className="text-4xl font-bold">${itemDetails.priceRange.suggested} <span className="text-lg font-medium text-muted-foreground">USD</span></span>
                         <span className="text-sm text-muted-foreground">Sweet spot</span>
                       </div>
                       <div className="flex items-center justify-between p-3 bg-muted/50 rounded-2xl">
                         <div className="text-center flex-1 border-r">
                           <p className="text-[10px] uppercase text-muted-foreground font-bold">Low</p>
-                          <p className="font-bold text-lg">${itemDetails.priceRange.low}</p>
+                          <p className="font-bold text-lg">${itemDetails.priceRange.low} <span className="text-xs text-muted-foreground">USD</span></p>
                         </div>
                         <div className="text-center flex-1 border-r">
                           <p className="text-[10px] uppercase text-muted-foreground font-bold">Average</p>
-                          <p className="font-bold text-lg">${itemDetails.priceRange.suggested}</p>
+                          <p className="font-bold text-lg">${itemDetails.priceRange.suggested} <span className="text-xs text-muted-foreground">USD</span></p>
                         </div>
                         <div className="text-center flex-1">
                           <p className="text-[10px] uppercase text-muted-foreground font-bold">High</p>
-                          <p className="font-bold text-lg">${itemDetails.priceRange.high}</p>
+                          <p className="font-bold text-lg">${itemDetails.priceRange.high} <span className="text-xs text-muted-foreground">USD</span></p>
                         </div>
                       </div>
                     </CardContent>

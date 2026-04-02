@@ -56,11 +56,26 @@ export const getUsageCount = query({
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return 0;
-    const listings = await ctx.db
-      .query("listings")
+    const usages = await ctx.db
+      .query("usages")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
-    return listings.length;
+    return usages.length;
+  },
+});
+
+export const recordUsage = mutation({
+  args: { type: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    await ctx.db.insert("usages", {
+      userId,
+      type: args.type,
+      createdAt: Date.now(),
+    });
+    return null;
   },
 });
 

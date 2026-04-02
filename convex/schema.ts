@@ -17,4 +17,9 @@ export default defineSchema({
     postedTo: v.optional(v.array(v.string())),
     createdAt: v.number(),
   }).index("by_userId", ["userId"]),
+  usages: defineTable({
+    userId: v.id("users"),
+    type: v.string(),
+    createdAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });

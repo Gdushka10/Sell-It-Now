@@ -147,7 +147,7 @@ export function HomePage() {
                     </div>
                     <h3 className="text-2xl font-bold">Sony WH-1000XM4 Wireless</h3>
                     <div className="mt-4 flex items-baseline gap-2">
-                      <span className="text-4xl font-bold text-primary">$185.00</span>
+                      <span className="text-4xl font-bold text-primary">$185.00 USD</span>
                       <span className="text-sm font-medium text-muted-foreground">Suggested Price</span>
                     </div>
                     <div className="mt-6 space-y-3">
@@ -155,9 +155,9 @@ export function HomePage() {
                         <div className="h-full w-3/4 rounded-full bg-primary" />
                       </div>
                       <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        <span>Low: $140</span>
-                        <span>Market Average: $180</span>
-                        <span>High: $220</span>
+                        <span>Low: $140 USD</span>
+                        <span>Market Average: $180 USD</span>
+                        <span>High: $220 USD</span>
                       </div>
                     </div>
                     <div className="mt-8 rounded-xl bg-gray-50 p-4">
@@ -338,7 +338,7 @@ export function HomePage() {
                 <div className="mb-8">
                   <h3 className="text-2xl font-bold">Free Plan</h3>
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-5xl font-extrabold tracking-tight">$0</span>
+                    <span className="text-5xl font-extrabold tracking-tight">$0 USD</span>
                     <span className="text-muted-foreground font-medium">/month</span>
                   </div>
                 </div>
@@ -378,7 +378,7 @@ export function HomePage() {
                 <div className="mb-8">
                   <h3 className="text-2xl font-bold">Pro Plan</h3>
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-5xl font-extrabold tracking-tight">$9.99</span>
+                    <span className="text-5xl font-extrabold tracking-tight">$9.99 USD</span>
                     <span className="text-muted-foreground font-medium">/month</span>
                   </div>
                 </div>
