@@ -56,6 +56,22 @@ export const getUsageCount = query({
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return 0;
+
+    // Check if user is admin - admins get unlimited free analyses
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      const authAccounts = await ctx.db
+        .query("authAccounts")
+        .filter((q: any) => q.eq(q.field("userId"), userId))
+        .collect();
+      const userEmail = authAccounts[0]?.providerAccountId;
+      if (userEmail === adminEmail) return 0;
+    } else {
+      // Fallback: first user created is admin
+      const allUsers = await ctx.db.query("users").order("asc").take(1);
+      if (allUsers[0] && allUsers[0]._id === userId) return 0;
+    }
+
     const usages = await ctx.db
       .query("usages")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
